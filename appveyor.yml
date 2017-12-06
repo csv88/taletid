@@ -1,0 +1,10 @@
+version: 1.0.{build}
+
+install:
+    - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild "6.0") x64
+    - npm install -g elm
+    - npm install -g create-elm-app
+    
+build_script:
+    - elm-package install --yes
+    - elm-app build
