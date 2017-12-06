@@ -13,18 +13,20 @@ import Task
 
 type alias Model =
     { gjeldendeTid : DateTime
-    , starttid : DateTime
-    , maltid : DateTime
+    , startTid : DateTime
+    , sluttTid : DateTime
     , nedtelling : DateTimeDelta
+    , prosentFerdig : Float
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { gjeldendeTid = DateTime.epoch
-      , starttid = DateTime.epoch
-      , maltid = DateTime.epoch
+      , startTid = DateTime.epoch
+      , sluttTid = DateTime.epoch
       , nedtelling = deltaZero
+      , prosentFerdig = 0
       }
     , getTime
     )
@@ -33,6 +35,21 @@ init flags =
 deltaZero : DateTimeDelta
 deltaZero =
     DateTime.delta DateTime.epoch DateTime.epoch
+
+
+prosentFerdig : Model -> Float
+prosentFerdig model =
+    let
+        gjeldende =
+            DateTime.delta model.gjeldendeTid model.startTid
+
+        totalt =
+            DateTime.delta model.sluttTid model.startTid
+
+        prosent =
+            (toFloat gjeldende.milliseconds) / (toFloat totalt.milliseconds) * 100
+    in
+        prosent
 
 
 
@@ -53,22 +70,37 @@ update msg model =
                     DateTime.fromTimestamp t
 
                 opptalt =
-                    DateTime.delta model.maltid model.gjeldendeTid
+                    DateTime.delta model.sluttTid model.gjeldendeTid
 
                 x =
                     if opptalt.seconds < 0 then
                         deltaZero
                     else
                         opptalt
+
+                prosent_ =
+                    prosentFerdig model
+
+                prosent =
+                    if prosent_ < 100 then
+                        prosent_
+                    else
+                        100
             in
-                ( { model | gjeldendeTid = gjeldende, nedtelling = x }, Cmd.none )
+                ( { model
+                    | gjeldendeTid = gjeldende
+                    , nedtelling = x
+                    , prosentFerdig = prosent
+                  }
+                , Cmd.none
+                )
 
         SettMaltid minutter ->
             let
                 nyTid =
                     DateTime.addMinutes minutter model.gjeldendeTid
             in
-                ( { model | starttid = model.gjeldendeTid, maltid = nyTid }, getTime )
+                ( { model | startTid = model.gjeldendeTid, sluttTid = nyTid }, getTime )
 
 
 
@@ -79,10 +111,8 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "Taletid" ]
-          --, p [] [ text <| formaterTidspunkt <| model.gjeldendeTid ]
-          --, p [] [ text <| formaterTidspunkt <| model.maltid ]
-          --, viewProgressbar 100
         , p [] [ text <| formaterTidspunkt2 <| model.nedtelling ]
+        , viewProgressbar model.prosentFerdig
         , visKnapp 1
         , visKnapp 3
         , visKnapp 5
@@ -101,12 +131,12 @@ visKnapp antallMin =
         [ text <| toString antallMin ++ " min" ]
 
 
-viewProgressbar : Int -> Html Msg
-viewProgressbar int =
+viewProgressbar : Float -> Html Msg
+viewProgressbar prosent =
     div [ class "progressbar" ]
         [ div
             [ class "progress"
-            , style [ ( "width", (toString int) ++ "%" ) ]
+            , style [ ( "width", (toString prosent) ++ "%" ) ]
             ]
             []
         ]
