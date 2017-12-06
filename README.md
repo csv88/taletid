@@ -1,3 +1,8 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/64jjvx576augm830?svg=true)](https://ci.appveyor.com/project/eidjord/taletid)
+
+Demo: https://taletid1.firebaseapp.com/
+
+
 This project is bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app).
 
 Below you will find some information on how to perform basic tasks.  
