@@ -1,10 +1,17 @@
 version: 1.0.{build}
 
+image:
+  - Visual Studio 2017
+
+environment:
+  matrix:
+    - nodejs_version: "6"
+
 install:
-    - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild "6.0") x64
-    - npm install -g elm
-    - npm install -g create-elm-app
+#  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild "6.0") x64
+  - npm install -g elm
+  - npm install -g create-elm-app
     
 build_script:
-    - elm-package install --yes
-    - elm-app build
+  - elm-package install --yes
+  - elm-app build
