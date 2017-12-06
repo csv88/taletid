@@ -9,11 +9,25 @@ h1 {
   font-size: 30px;
 }
 
-img {
-  margin: 20px 0;
-  max-width: 200px;
+p {
+  font-size: 25vw;
+  line-height: 2vw;
 }
 
-p {
-  font-size: 200px
+button {
+    font-size: 2.5vw;
+    padding: 1.2vw;
+    margin: 1vw;
+}
+
+.progressbar {
+    width: 100%;
+    height: 5vw;
+    background-color: #aaa;
+}
+
+.progress {
+    width: 0;
+    height: 5vw;
+    background-color: #222;
 }

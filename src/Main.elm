@@ -1,9 +1,8 @@
 module Main exposing (..)
 
 import Html exposing (Html, text, div, h1, img, button, p)
-import Html.Attributes exposing (src)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Time.Date as Date
 import Time.DateTime as DateTime exposing (DateTime, DateTimeDelta, hour, minute, second)
 import Time exposing (Time, every)
 import Task
@@ -14,6 +13,7 @@ import Task
 
 type alias Model =
     { gjeldendeTid : DateTime
+    , starttid : DateTime
     , maltid : DateTime
     , nedtelling : DateTimeDelta
     }
@@ -22,6 +22,7 @@ type alias Model =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { gjeldendeTid = DateTime.epoch
+      , starttid = DateTime.epoch
       , maltid = DateTime.epoch
       , nedtelling = deltaZero
       }
@@ -67,7 +68,7 @@ update msg model =
                 nyTid =
                     DateTime.addMinutes minutter model.gjeldendeTid
             in
-                ( { model | maltid = nyTid }, getTime )
+                ( { model | starttid = model.gjeldendeTid, maltid = nyTid }, getTime )
 
 
 
@@ -78,9 +79,9 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "Taletid" ]
-
-        --, p [] [ text <| formaterTidspunkt <| model.gjeldendeTid ]
-        --, p [] [ text <| formaterTidspunkt <| model.maltid ]
+          --, p [] [ text <| formaterTidspunkt <| model.gjeldendeTid ]
+          --, p [] [ text <| formaterTidspunkt <| model.maltid ]
+          --, viewProgressbar 100
         , p [] [ text <| formaterTidspunkt2 <| model.nedtelling ]
         , visKnapp 1
         , visKnapp 3
@@ -98,6 +99,17 @@ visKnapp antallMin =
     button
         [ onClick <| SettMaltid antallMin ]
         [ text <| toString antallMin ++ " min" ]
+
+
+viewProgressbar : Int -> Html Msg
+viewProgressbar int =
+    div [ class "progressbar" ]
+        [ div
+            [ class "progress"
+            , style [ ( "width", (toString int) ++ "%" ) ]
+            ]
+            []
+        ]
 
 
 formaterTidspunkt : DateTime -> String
