@@ -150,7 +150,6 @@ view model =
         , visKnapp 1
         , visKnapp 3
         , visKnapp 5
-        , visKnapp 7
         , visKnapp 10
         , button
             [ onClick <| SettMaltid 0 ]
