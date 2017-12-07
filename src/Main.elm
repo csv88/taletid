@@ -1,11 +1,12 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, img, button, p)
+import Html exposing (Attribute, Html, button, div, h1, img, p, text)
 import Html.Attributes exposing (class, style)
-import Html.Events exposing (onClick)
-import Time.DateTime as DateTime exposing (DateTime, DateTimeDelta, hour, minute, second)
-import Time exposing (Time, every)
+import Html.Events exposing (keyCode, on, onClick)
 import Task
+import Time exposing (Time, every)
+import Time.DateTime as DateTime exposing (DateTime, DateTimeDelta, hour, minute, second)
+import Keyboard
 
 
 ---- MODEL ----
@@ -59,6 +60,12 @@ prosentFerdig model =
 type Msg
     = OnTime Time
     | SettMaltid Int
+    | Keypress Keyboard.KeyCode
+
+
+type Key
+    = KeyEnter
+    | KeyA
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,34 +73,30 @@ update msg model =
     case msg of
         OnTime t ->
             let
-                gjeldende =
-                    DateTime.fromTimestamp t
-
-                opptalt =
-                    DateTime.delta model.sluttTid model.gjeldendeTid
-
-                x =
-                    if opptalt.seconds < 0 then
-                        deltaZero
-                    else
-                        opptalt
-
-                prosent_ =
-                    prosentFerdig model
-
-                prosent =
-                    if prosent_ < 100 then
-                        prosent_
-                    else
-                        100
+                b =
+                    x model t
             in
-                ( { model
-                    | gjeldendeTid = gjeldende
-                    , nedtelling = x
-                    , prosentFerdig = prosent
-                  }
+                ( b
                 , Cmd.none
                 )
+
+        Keypress key ->
+            let
+                nyTid minutter =
+                    DateTime.addMinutes minutter model.gjeldendeTid
+
+                _ =
+                    Debug.log "Keypress!" key
+
+                tid =
+                    case key of
+                        13 ->
+                            nyTid 20
+
+                        _ ->
+                            nyTid 30
+            in
+                ( { model | startTid = model.gjeldendeTid, sluttTid = tid }, getTime )
 
         SettMaltid minutter ->
             let
@@ -101,6 +104,37 @@ update msg model =
                     DateTime.addMinutes minutter model.gjeldendeTid
             in
                 ( { model | startTid = model.gjeldendeTid, sluttTid = nyTid }, getTime )
+
+
+x : Model -> Time -> Model
+x model t =
+    let
+        gjeldende =
+            DateTime.fromTimestamp t
+
+        opptalt =
+            DateTime.delta model.sluttTid model.gjeldendeTid
+
+        dd =
+            if opptalt.seconds < 0 then
+                deltaZero
+            else
+                opptalt
+
+        prosent_ =
+            prosentFerdig model
+
+        prosent =
+            if prosent_ < 100 then
+                prosent_
+            else
+                100
+    in
+        { model
+            | gjeldendeTid = gjeldende
+            , nedtelling = dd
+            , prosentFerdig = prosent
+        }
 
 
 
@@ -165,13 +199,12 @@ formaterTidspunkt2 gjeldendeTidspunkt =
         ++ String.padLeft 2 '0' (toString (gjeldendeTidspunkt.seconds - gjeldendeTidspunkt.minutes * 60))
 
 
-
----- SUBSCRIPTIONS ----
-
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    every Time.second OnTime
+    Sub.batch
+        [ Keyboard.downs Keypress
+        , every Time.second OnTime
+        ]
 
 
 
