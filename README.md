@@ -2,6 +2,9 @@
 
 Demo: https://taletid1.firebaseapp.com/
 
+Sett opp dev-miljø:
+Installer elm `npm install -g elm`
+Installer elm-app `npm install -g create-elm-app`
 
 This project is bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app).
 
