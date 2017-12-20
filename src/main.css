@@ -35,3 +35,14 @@ button {
     height: 5vw;
     background-color: #293c4b;
 }
+
+.progressvarsel {
+  width: 0;
+  height: 5vw;
+  background-color:rgb(199, 3, 3);
+}
+
+.varsel {
+  color: rgb(199, 3, 3);
+
+}

@@ -20,6 +20,7 @@ type alias Model =
     , nedtelling : DateTimeDelta
     , prosentFerdig : Float
     , valg : List Valg
+    , varsel : Bool
     }
 
 
@@ -38,10 +39,12 @@ init flags =
     , prosentFerdig = 0
     , valg =
         [ Valg 1 (Char.toCode 'R')
+        , Valg 2 (Char.toCode 'D')
         , Valg 3 (Char.toCode 'I')
         , Valg 5 (Char.toCode 'H')
         , Valg 10 (Char.toCode 'S')
         ]
+    , varsel = False
     }
         ! []
 
@@ -80,6 +83,7 @@ type Msg
     = OnTime Time
     | SettMaltid Int
     | Keypress KeyCode
+    | Setvarsel Bool
 
 
 type Key
@@ -90,12 +94,23 @@ type Key
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Setvarsel v ->
+            { model | varsel = v } ! []
+
         OnTime t ->
             let
                 b =
                     x model t
+
+                cc =
+                    if model.prosentFerdig == 100 then
+                        update (Setvarsel False)
+                    else if model.prosentFerdig > 90 then
+                        update (Setvarsel True)
+                    else
+                        update (Setvarsel False)
             in
-                b ! []
+                b |> cc
 
         Keypress key ->
             let
@@ -134,7 +149,7 @@ x model t =
         opptalt =
             DateTime.delta model.sluttTid model.gjeldendeTid
 
-        dd =
+        nedtelling =
             if opptalt.seconds < 0 then
                 deltaZero
             else
@@ -145,7 +160,7 @@ x model t =
     in
         { model
             | gjeldendeTid = gjeldende
-            , nedtelling = dd
+            , nedtelling = nedtelling
             , prosentFerdig = prosent
         }
 
@@ -156,11 +171,19 @@ x model t =
 
 view : Model -> Html Msg
 view model =
-    div [] <|
+    div
+        [ if model.varsel == True then
+            class "varsel"
+          else
+            class ""
+        ]
+    <|
         List.concat
             [ [ h1 [] [ text "Taletid" ]
-              , p [] [ text <| formaterTidspunkt2 <| model.nedtelling ]
-              , viewProgressbar model.prosentFerdig
+              , p
+                    []
+                    [ text <| formaterTidspunkt2 <| model.nedtelling ]
+              , viewProgressbar model
               ]
             , List.map viewKnapp model.valg
             , [ button
@@ -177,12 +200,15 @@ viewKnapp valg =
         [ text <| toString valg.minutter ++ " min" ]
 
 
-viewProgressbar : Float -> Html Msg
-viewProgressbar prosent =
+viewProgressbar : Model -> Html Msg
+viewProgressbar model =
     div [ class "progressbar" ]
         [ div
-            [ class "progress"
-            , style [ ( "width", (toString prosent) ++ "%" ) ]
+            [ if model.varsel == True then
+                class "progressvarsel"
+              else
+                class "progress"
+            , style [ ( "width", (toString model.prosentFerdig) ++ "%" ) ]
             ]
             []
         ]
