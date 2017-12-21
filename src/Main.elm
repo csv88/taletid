@@ -103,9 +103,9 @@ update msg model =
                     x model t
 
                 cc =
-                    if model.prosentFerdig == 100 then
+                    if model.nedtelling.seconds == 0 then
                         update (Setvarsel False)
-                    else if model.prosentFerdig > 90 then
+                    else if model.nedtelling.seconds < 30 then
                         update (Setvarsel True)
                     else
                         update (Setvarsel False)
