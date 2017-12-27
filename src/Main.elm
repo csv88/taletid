@@ -104,8 +104,8 @@ update msg model =
 
                 cc =
                     if model.nedtelling.seconds == 0 then
-                        update (Setvarsel False)
-                    else if model.nedtelling.seconds < 30 then
+                        update (Setvarsel True)
+                    else if model.nedtelling.seconds < 31 then
                         update (Setvarsel True)
                     else
                         update (Setvarsel False)
@@ -179,7 +179,7 @@ view model =
         ]
     <|
         List.concat
-            [ [ h1 [] [ text "Taletid" ]
+            [ [ h1 [] [ text "" ]
               , p
                     []
                     [ text <| formaterTidspunkt2 <| model.nedtelling ]

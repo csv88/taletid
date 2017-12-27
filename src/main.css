@@ -15,7 +15,7 @@ p {
 }
 
 button {
-    font-size: 2.5vw;
+    font-size: 2vw;
     padding: 0.5vw 1.2vw;
     margin:  5vw 1vw;
 }
@@ -39,10 +39,10 @@ button {
 .progressvarsel {
   width: 0;
   height: 5vw;
-  background-color:rgb(199, 3, 3);
+  background-color:rgba(155, 4, 4, 0.87);
 }
 
 .varsel {
-  color: rgb(199, 3, 3);
+  color:rgba(155, 4, 4, 0.87);
 
 }
