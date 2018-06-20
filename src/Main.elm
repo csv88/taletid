@@ -43,6 +43,7 @@ init flags =
         , Valg 3 (Char.toCode 'I')
         , Valg 5 (Char.toCode 'H')
         , Valg 10 (Char.toCode 'S')
+        , Valg 60 (Char.toCode 'P')
         ]
     , varsel = False
     }
